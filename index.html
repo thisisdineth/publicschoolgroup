@@ -5,87 +5,111 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Twitter Clone</title>
   <!-- Add your Firebase SDK scripts here -->
- 
-<script type="module">
-  // Firebase configuration
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyB8_EeXv-jPv4Po0YpQOSIr46vTt9mQ7OI",
-    authDomain: "healthy-firefly-401808.firebaseapp.com",
-    projectId: "healthy-firefly-401808",
-    storageBucket: "healthy-firefly-401808.appspot.com",
-    messagingSenderId: "1018543693263",
-    appId: "1:1018543693263:web:1087962325473897f846ba",
-    measurementId: "G-FVSR9LKX88"
-  };
+  <script type="module">
+    // Firebase configuration
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB8_EeXv-jPv4Po0YpQOSIr46vTt9mQ7OI",
+      authDomain: "healthy-firefly-401808.firebaseapp.com",
+      projectId: "healthy-firefly-401808",
+      storageBucket: "healthy-firefly-401808.appspot.com",
+      messagingSenderId: "1018543693263",
+      appId: "1:1018543693263:web:1087962325473897f846ba",
+      measurementId: "G-FVSR9LKX88"
+    };
 
-  // Event listener for user registration form
-  document.getElementById('registrationForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const username = document.getElementById('username').value;
-    await createUserProfile(username);
-  });
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  // Event listener for posting a tweet
-  document.getElementById('postForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const tweetText = document.getElementById('tweet').value;
-    await postTweet(tweetText);
+    // Event listener for user registration form
+    document.getElementById('registrationForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      await createUserProfile(username);
+    });
+
+    // Event listener for posting a tweet
+    document.getElementById('postForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const tweetText = document.getElementById('tweet').value;
+      await postTweet(tweetText);
+      displayTweets();
+    });
+
+    // Function to create a user profile
+    async function createUserProfile(username) {
+      try {
+        const userRef = await addDoc(collection(db, 'users'), {
+          username: username,
+        });
+        console.log('User profile created with ID: ', userRef.id);
+      } catch (e) {
+        console.error('Error creating user profile: ', e);
+      }
+    }
+
+    // Function to post a tweet
+    async function postTweet(tweetText) {
+      try {
+        await addDoc(collection(db, 'tweets'), {
+          text: tweetText,
+          timestamp: new Date(),
+        });
+        console.log('Tweet posted successfully!');
+      } catch (e) {
+        console.error('Error posting tweet: ', e);
+      }
+    }
+
+    // Function to fetch and display tweets
+    async function displayTweets() {
+      const tweetsContainer = document.getElementById('tweets');
+      tweetsContainer.innerHTML = ''; // Clear previous tweets
+
+      try {
+        const querySnapshot = await getDocs(collection(db, 'tweets'));
+        querySnapshot.forEach((doc) => {
+          const tweetData = doc.data();
+          const tweetElement = document.createElement('div');
+          tweetElement.innerHTML = `<p>${tweetData.text}</p>`;
+          tweetsContainer.appendChild(tweetElement);
+        });
+      } catch (e) {
+        console.error('Error fetching tweets: ', e);
+      }
+    }
+
+    // Call the function to display tweets
     displayTweets();
-  });
+  </script>
+</head>
+<body>
+  <div id="app">
+    <h1>Welcome to Your Twitter Clone</h1>
 
-  // Function to create a user profile
-  async function createUserProfile(username) {
-    try {
-      const userRef = await addDoc(collection(db, 'users'), {
-        username: username,
-      });
-      console.log('User profile created with ID: ', userRef.id);
-    } catch (e) {
-      console.error('Error creating user profile: ', e);
-    }
-  }
+    <!-- User Registration Form -->
+    <form id="registrationForm">
+      <label for="username">Username:</label>
+      <input type="text" id="username" required>
+      <button type="submit">Register</button>
+    </form>
 
-  // Function to post a tweet
-  async function postTweet(tweetText) {
-    try {
-      await addDoc(collection(db, 'tweets'), {
-        text: tweetText,
-        timestamp: new Date(),
-      });
-      console.log('Tweet posted successfully!');
-    } catch (e) {
-      console.error('Error posting tweet: ', e);
-    }
-  }
+    <!-- Post Tweet Form -->
+    <form id="postForm">
+      <label for="tweet">Post a tweet:</label>
+      <input type="text" id="tweet" required>
+      <button type="submit">Post</button>
+    </form>
 
-  // Function to fetch and display tweets
-  async function displayTweets() {
-    const tweetsContainer = document.getElementById('tweets');
-    tweetsContainer.innerHTML = ''; // Clear previous tweets
-
-    try {
-      const querySnapshot = await getDocs(collection(db, 'tweets'));
-      querySnapshot.forEach((doc) => {
-        const tweetData = doc.data();
-        const tweetElement = document.createElement('div');
-        tweetElement.innerHTML = `<p>${tweetData.text}</p>`;
-        tweetsContainer.appendChild(tweetElement);
-      });
-    } catch (e) {
-      console.error('Error fetching tweets: ', e);
-    }
-  }
-
-  // Call the function to display tweets
-  displayTweets();
-</script>
+    <!-- Display Tweets -->
+    <div id="tweets">
+      <!-- Display tweets dynamically here -->
+    </div>
+  </div>
 </body>
 </html>
