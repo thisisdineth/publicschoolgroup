@@ -5,15 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Twitter Clone</title>
   <!-- Add your Firebase SDK scripts here -->
-    <script type="module">
-  // Import the functions you need from the SDKs you need
+ <script type="module">
+  // Firebase configuration
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   const firebaseConfig = {
     apiKey: "AIzaSyB8_EeXv-jPv4Po0YpQOSIr46vTt9mQ7OI",
     authDomain: "healthy-firefly-401808.firebaseapp.com",
@@ -26,75 +23,68 @@
 
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
-    
-  <script type="module" src="your-firebase-app.js"></script>
-</head>
-<body>
-  <div id="app">
-    <h1>Welcome to Your Twitter Clone</h1>
+  const db = getFirestore(app);
 
-    <!-- User Registration Form -->
-    <form id="registrationForm">
-      <label for="username">Username:</label>
-      <input type="text" id="username" required>
-      <button type="submit">Register</button>
-    </form>
+  // Event listener for user registration form
+  document.getElementById('registrationForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    await createUserProfile(username);
+  });
 
-    <!-- Post Tweet Form -->
-    <form id="postForm">
-      <label for="tweet">Post a tweet:</label>
-      <input type="text" id="tweet" required>
-      <button type="submit">Post</button>
-    </form>
-
-    <!-- Display Tweets -->
-    <div id="tweets">
-      <!-- Display tweets dynamically here -->
-    </div>
-  </div>
-
-  <script type="module">
-    // Firebase configuration
-
-    // Import necessary Firebase modules
-
-    // Initialize Firebase app
-
-    // Your Firestore database reference
-
-    // Event listener for user registration form
-    document.getElementById('registrationForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-      createUserProfile(username);
-    });
-
-    // Event listener for posting a tweet
-    document.getElementById('postForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const tweetText = document.getElementById('tweet').value;
-      postTweet(tweetText);
-    });
-
-    // Function to create a user profile
-    async function createUserProfile(username) {
-      // Implement user registration logic with Firestore
-    }
-
-    // Function to post a tweet
-    async function postTweet(tweetText) {
-      // Implement tweet posting logic with Firestore
-    }
-
-    // Function to fetch and display tweets
-    function displayTweets() {
-      // Implement logic to retrieve and display tweets from Firestore
-    }
-
-    // Call the function to display tweets
+  // Event listener for posting a tweet
+  document.getElementById('postForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const tweetText = document.getElementById('tweet').value;
+    await postTweet(tweetText);
     displayTweets();
-  </script>
+  });
+
+  // Function to create a user profile
+  async function createUserProfile(username) {
+    try {
+      const userRef = await addDoc(collection(db, 'users'), {
+        username: username,
+      });
+      console.log('User profile created with ID: ', userRef.id);
+    } catch (e) {
+      console.error('Error creating user profile: ', e);
+    }
+  }
+
+  // Function to post a tweet
+  async function postTweet(tweetText) {
+    try {
+      await addDoc(collection(db, 'tweets'), {
+        text: tweetText,
+        timestamp: new Date(),
+      });
+      console.log('Tweet posted successfully!');
+    } catch (e) {
+      console.error('Error posting tweet: ', e);
+    }
+  }
+
+  // Function to fetch and display tweets
+  async function displayTweets() {
+    const tweetsContainer = document.getElementById('tweets');
+    tweetsContainer.innerHTML = ''; // Clear previous tweets
+
+    try {
+      const querySnapshot = await getDocs(collection(db, 'tweets'));
+      querySnapshot.forEach((doc) => {
+        const tweetData = doc.data();
+        const tweetElement = document.createElement('div');
+        tweetElement.innerHTML = `<p>${tweetData.text}</p>`;
+        tweetsContainer.appendChild(tweetElement);
+      });
+    } catch (e) {
+      console.error('Error fetching tweets: ', e);
+    }
+  }
+
+  // Call the function to display tweets
+  displayTweets();
+</script>
 </body>
 </html>
