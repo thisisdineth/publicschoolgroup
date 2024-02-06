@@ -11,15 +11,15 @@
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "your-api-key",
-      authDomain: "your-auth-domain",
-      projectId: "your-project-id",
-      storageBucket: "your-storage-bucket",
-      messagingSenderId: "your-messaging-sender-id",
-      appId: "your-app-id",
-      measurementId: "your-measurement-id"
-    };
+const firebaseConfig = {
+    apiKey: "AIzaSyAtbkw8092EyY1cvJQ365Ny4Cn4YLJE71g",
+    authDomain: "loginpage-73cf9.firebaseapp.com",
+    projectId: "loginpage-73cf9",
+    storageBucket: "loginpage-73cf9.appspot.com",
+    messagingSenderId: "1019359999662",
+    appId: "1:1019359999662:web:e58892f2a210e6cc499f3f",
+    measurementId: "G-S06EEFDQQP"
+  };
 
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
@@ -44,30 +44,60 @@
     }
 
     // Function to show signup form
-    function showSignUp() {
-      const signUpForm = `
-        <form id="signupForm" onsubmit="signup(event)">
-          <label for="username">Username:</label>
-          <input type="text" id="username" required><br>
-          
-          <label for="password">Password:</label>
-          <input type="password" id="password" required><br>
-          
-          <label for="realName">Real Name:</label>
-          <input type="text" id="realName" required><br>
-          
-          <label for="birthday">Birthday:</label>
-          <input type="date" id="birthday" required><br>
-          
-          <label for="bio">Short Bio (max 300 characters):</label>
-          <textarea id="bio" maxlength="300" required></textarea><br>
-          
-          <button type="submit">Sign Up</button>
-        </form>
-      `;
+<!-- Add this block of code after the "Function to show signup form" comment -->
+// Function to show signup form
+function showSignUp() {
+  const signUpForm = `
+    <form id="signupForm">
+      <label for="username">Username:</label>
+      <input type="text" id="username" required><br>
+      
+      <label for="password">Password:</label>
+      <input type="password" id="password" required><br>
+      
+      <label for="realName">Real Name:</label>
+      <input type="text" id="realName" required><br>
+      
+      <label for="birthday">Birthday:</label>
+      <input type="date" id="birthday" required><br>
+      
+      <label for="bio">Short Bio (max 300 characters):</label>
+      <textarea id="bio" maxlength="300" required></textarea><br>
+      
+      <button type="button" onclick="signup()">Sign Up</button>
+    </form>
+  `;
 
-      document.getElementById('content').innerHTML = signUpForm;
-    }
+  document.getElementById('content').innerHTML = signUpForm;
+}
+
+// Function to handle user signup
+function signup() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  const realName = document.getElementById('realName').value;
+  const birthday = document.getElementById('birthday').value;
+  const bio = document.getElementById('bio').value;
+
+  createUserWithEmailAndPassword(auth, username, password)
+    .then(() => {
+      // After successful signup, update user profile and show home page
+      const user = auth.currentUser;
+      user.updateProfile({
+        displayName: realName,
+        photoURL: 'default-profile-image.jpg' // Replace with a default profile image URL
+      }).then(() => {
+        // Redirect to home page
+        window.location.href = 'home.html';
+      }).catch((error) => {
+        console.error(error.message);
+      });
+    })
+    .catch((error) => {
+      console.error(error.message);
+    });
+}
+
 
     // Function to handle user signup
     function signup(event) {
